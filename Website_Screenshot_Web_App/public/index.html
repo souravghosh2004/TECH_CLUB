@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website Screenshot Capture</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 50px; }
+        h1 { color: #333; }
+        form { display: flex; flex-direction: column; max-width: 400px; }
+        input { padding: 10px; margin-bottom: 20px; width: 100%; }
+        button { padding: 10px; background-color: #007bff; color: white; border: none; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        .screenshot { margin-top: 20px; max-width: 100%; }
+        .download-button { margin-top: 20px; display: none; }
+    </style>
+</head>
+<body>
+    <h1>Capture Screenshot of a Website</h1>
+    <form id="screenshotForm">
+        <label for="url">Enter the URL:</label>
+        <input type="text" id="url" name="url" placeholder="https://example.com" required>
+        <button type="submit">Capture Screenshot</button>
+    </form>
+    <img id="screenshotImage" class="screenshot" src="" alt="Screenshot will appear here" hidden>
+    <a id="downloadLink" class="download-button" href="" download="screenshot.png">Download Screenshot</a>
+    
+    <script>
+        document.getElementById('screenshotForm').addEventListener('submit', async function(event) {
+            event.preventDefault();  // Prevent default form submission
+
+            const url = document.getElementById('url').value.trim(); // Trim whitespace
+            console.log('URL to capture:', url); // Log the URL for debugging
+
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                alert('Please enter a valid URL starting with http:// or https://');
+                return;
+            }
+
+            try {
+                // Post the URL to the backend server
+                const response = await fetch('/capture', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ url }) // Check the JSON structure
+                });
+
+                console.log('Response status:', response.status); // Log the response status
+
+                // If the response is okay, get the image and show it on the page
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const imageUrl = URL.createObjectURL(blob);
+                    const screenshotImage = document.getElementById('screenshotImage');
+                    const downloadLink = document.getElementById('downloadLink');
+
+                    screenshotImage.src = imageUrl;
+                    screenshotImage.hidden = false;
+
+                    // Set up the download link
+                    downloadLink.href = imageUrl;
+                    downloadLink.style.display = 'inline';  // Show the download button
+                } else {
+                    const errorMessage = await response.text(); // Get the error message
+                    console.error('Error response:', errorMessage); // Log the error response
+                    alert('Failed to capture screenshot: ' + errorMessage);
+                }
+            } catch (error) {
+                console.error('Fetch error:', error); // Log any network errors
+                alert('Error: ' + error.message);
+            }
+        });
+    </script>
+</body>
+</html>

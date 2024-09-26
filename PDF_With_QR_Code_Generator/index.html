@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR Code PDF Generator</title>
+  <style>
+    body {
+      background-color: #059ac7; 
+      font-family: Arial, sans-serif; 
+      text-align: center; 
+      margin-top: 50px; 
+    }
+    #qr-canvas {
+      margin: 20px auto; 
+    }
+    #text-input {
+      width: 350px; 
+      height: 20px; 
+      padding: 10px; 
+    }
+    .btn {
+      margin: 20px; 
+      padding: 10px 20px; 
+      background-color: #007BFF; 
+      color: white; 
+      border: none; 
+      cursor: pointer; 
+      border-radius: 5%; 
+    }
+    .btn:hover {
+      color: beige; 
+      background-color: black; 
+    }
+  </style>
+</head>
+<body>
+  <h1>QR Code to PDF Generator</h1>
+  <input type="text" id="text-input" placeholder="Enter your text to generate qr or pdf">
+  <br><br>
+  <canvas id="qr-canvas"></canvas>
+  <br>
+  <button class="btn" onclick="generateQR()">Generate QR Code</button>
+  <button class="btn" onclick="generatePDF()">Download PDF</button>
+  <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>
+    let qr;
+    function generateQR() {
+      const input = document.getElementById('text-input').value;
+      qr = new QRious({
+        element: document.getElementById('qr-canvas'), 
+        size: 200, 
+        value: input
+      });
+    }
+    function generatePDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      // const inputText = document.getElementById('text-input').value;
+      // doc.text(inputText, 10, 10); // Adds text to the PDF at position (10, 10)
+      const qrCanvas = document.getElementById('qr-canvas');
+      const qrImage = qrCanvas.toDataURL("image/png");
+      doc.addImage(qrImage, 'PNG', 10, 20, 50, 50);
+      doc.save("qr_code.pdf");
+    }
+  </script>
+</body>
+</html>
